@@ -8,42 +8,39 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t) ; Org-mode's repository
 
-(global-hl-line-mode -1)
-
-;;changing default temp dir
 (put 'temporary-file-directory 'standard-value '((file-name-as-directory "/tmp")))
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
-;;;spacemacs offers good themes
-;;;http://themegallery.robdor.com/ 
-
 ;;; PT Mono & Theme
-(use-package monokai-theme
+(use-package solarized-theme
   :ensure t
   :config (progn
-            (setq monokai-use-variable-pitch nil
-                  monokai-height-minus-1 1.0
-                  monokai-height-plus-1 1.0
-                  monokai-height-plus-2 1.0
-                  monokai-height-plus-3 1.0
-                  monokai-height-plus-4 1.0)
-            (set-default-font "PT Mono 13")
-            (load-theme 'monokai t)))
+            (setq solarized-use-variable-pitch nil
+                  solarized-height-minus-1 1.0
+                  solarized-height-plus-1 1.0
+                  solarized-height-plus-2 1.0
+                  solarized-height-plus-3 1.0
+                  solarized-height-plus-4 1.0)
+            (set-default-font "PT Mono 14")
+            (global-hl-line-mode -1)
+            (load-theme 'solarized-light t)))
 
 (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 
-;; Get rid of keys I hit accidentally:
-(global-unset-key "\M-c")    ; don't want the capitalize thing
+
+(global-unset-key "\M-c")
+(setq mac-command-modifier 'meta)
+(setq mac-option-modifier 'super)
+(global-set-key (kbd "<f12>") 'toggle-frame-maximized)
 
 ;;; or Emacs fucking freezes every fucking time.
 
 ;; which screw up my directory listings.  Make it put them
 ;; somewhere else:
 (setq auto-save-list-file-prefix "~/.emacs-saves/.saves-")
-(setq-default auto-save-default nil)
 
 (defun eshell/clear ()
   "Clear terminal"
@@ -223,11 +220,10 @@ With a prefix ARG always prompt for command to use."
   (hrs/visit-last-dired-file)
   (kill-buffer "migrate"))
 
-(defun ysp/mac? ()
-  "Returns `t' if this is an Apple machine, nil otherwise."
+(defun mac? ()
   (eq system-type 'darwin))
 
-(defun ysp/add-auto-mode (mode &rest patterns)
+(defun add-auto-mode (mode &rest patterns)
   "Add entries to `auto-mode-alist' to use `MODE' for all given file `PATTERNS'."
   (dolist (pattern patterns)
     (add-to-list 'auto-mode-alist (cons pattern mode))))
@@ -254,10 +250,6 @@ With a prefix ARG always prompt for command to use."
 (global-set-key (kbd "C-x 2") 'ysp/split-window-below-and-switch)
 (global-set-key (kbd "C-x 3") 'ysp/split-window-right-and-switch)
 
-;; Show errors in this file:
-;;(setq debug-on-error t)
-;;(setq stack-trace-on-error t)
-
 ;;; save when necessarry 
 (defun save-all ()
   (interactive)
@@ -280,7 +272,7 @@ With a prefix ARG always prompt for command to use."
   (interactive)
   (find-file "~/.emacs.d/init.el"))
 
-(defun reload-settings ()
+(defun rs ()
   (interactive)
   (load-file "~/.emacs.d/init.el"))
 
@@ -380,7 +372,7 @@ With a prefix ARG always prompt for command to use."
   :config (global-aggressive-indent-mode 1))
 
 
-(setq-default cursor-type 'box)
+(setq-default cursor-type 'hbar)
 (blink-cursor-mode t)
 ;;; set the default shell
 (setq explicit-shell-file-name "/usr/local/bin/bash")
@@ -394,10 +386,6 @@ With a prefix ARG always prompt for command to use."
 (show-paren-mode +1)
 (setq show-paren-style 'parenthesis) 
 (setq show-paren-delay 0)
-
-;;; ok . this is ubuntu .
-(setq x-meta-keysym 'super)
-(setq x-super-keysym 'meta)
 
 ;;; you know dvorak 
 (keyboard-translate ?\C-x ?\C-u)
@@ -464,8 +452,9 @@ With a prefix ARG always prompt for command to use."
 (use-package key-chord
   :ensure t
   :init (key-chord-mode 1)
-  :config (progn (key-chord-define-global "$$" 'project-explorer-open)
-                 (key-chord-define-global "xx" 'execute-extended-command)))
+  :config (progn (key-chord-define-global "p." 'project-explorer-open)
+                 (key-chord-define-global "ht" 'projectile-find-file)
+                 (key-chord-define-global "ue" 'execute-extended-command)))
 
 (use-package smartparens
   :ensure t
@@ -764,7 +753,7 @@ With a prefix ARG always prompt for command to use."
     (add-hook 'LaTeX-mode-hook #'flyspell-mode)
     (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
     (setq TeX-auto-save t
-	  TeX-parse-self t
+      TeX-parse-self t
 	  TeX-save-query nil
 	  TeX-PDF-mode t)
     (setq-default TeX-master nil)))
@@ -815,34 +804,6 @@ With a prefix ARG always prompt for command to use."
   :bind (("C-h b" . helm-descbinds)
          ("C-h w" . helm-descbinds)))
 
-(use-package artbollocks-mode
-  :ensure t
-  :defer t
-  :init     (add-hook 'org-mode-hook #'artbollocks-mode)
-  :config
-  (progn
-    (setq artbollocks-weasel-words-regex
-          (concat "\\b" (regexp-opt
-                         '("one of the"
-                           "should"
-                           "just"
-                           "sort of"
-                           "a lot"
-                           "probably"
-                           "maybe"
-                           "perhaps"
-                           "I think"
-                           "really"
-                           "pretty"
-                           "nice"
-                           "action"
-                           "utilize"
-                           "leverage") t) "\\b"))
-    ;; Don't show the art critic words, or at least until I figure
-    ;; out my own jargon
-    (setq artbollocks-jargon nil)))
-
-;;; let's set a respectful theme.
 (use-package xkcd
   :ensure t
   :defer t)
@@ -864,3 +825,17 @@ With a prefix ARG always prompt for command to use."
   :config
   (progn
     (add-to-list 'auto-mode-alist '("\\.scala\\'" . scala-mode))))
+(use-package mark-multiple
+  :ensure t
+  :config
+  (progn
+    (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+    (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)))
+
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
