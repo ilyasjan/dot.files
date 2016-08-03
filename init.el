@@ -49,25 +49,6 @@
     (erase-buffer)
     (eshell-send-input)))
 
-(defun my/turn-off-linum-mode ()
-  (linum-mode -1))
-
-(defun open-with (arg)
-  "Open visited file in default external program.
-
-With a prefix ARG always prompt for command to use."
-  (interactive "P")
-  (when buffer-file-name
-    (shell-command (concat
-                    (cond
-                     ((and (not arg) (eq system-type 'darwin)) "open")
-                     ((and (not arg) (member system-type '(gnu gnu/linux gnu/kfreebsd))) "xdg-open")
-                     (t (read-shell-command "Open current file with: ")))
-                    " "
-                    (shell-quote-argument buffer-file-name)))))
-
-(global-set-key (kbd "C-c o") 'open-with)
-
 (defun copy-file-name-to-clipboard ()
   (interactive)
   (let ((filename (if (equal major-mode 'dired-mode)
@@ -138,119 +119,43 @@ With a prefix ARG always prompt for command to use."
 (setenv "PATH"
         (concat (getenv "PATH") ":/usr/local/bin"))
 
-(defun ysp/view-buffer-name ()
+(defun view-buffer-name ()
   "Display the filename of the current buffer."
   (interactive)
   (message (buffer-file-name)))
 
-(defun ysp/generate-scratch-buffer ()
-  "Create and switch to a temporary scratch buffer with a random
-     name."
-  (interactive)
-  (switch-to-buffer (make-temp-name "scratch-")))
 
-(defun ysp/split-window-below-and-switch ()
-  "Split the window horizontally, then switch to the new pane."
-  (interactive)
-  (split-window-below)
-  (other-window 1))
 
-(defun ysp/split-window-right-and-switch ()
-  "Split the window vertically, then switch to the new pane."
-  (interactive)
-  (split-window-right)
-  (other-window 1))
-
-(defun ysp/de-unicode ()
-  "Tidy up a buffer by replacing all special Unicode characters
-     (smart quotes, etc.) with their more sane cousins"
-  (interactive)
-  (let ((unicode-map '(("[\u2018\|\u2019\|\u201A\|\uFFFD]" . "'")
-                       ("[\u201c\|\u201d\|\u201e]" . "\"")
-                       ("\u2013" . "--")
-                       ("\u2014" . "---")
-                       ("\u2026" . "...")
-                       ("\u00A9" . "(c)")
-                       ("\u00AE" . "(r)")
-                       ("\u2122" . "TM")
-                       ("[\u02DC\|\u00A0]" . " "))))
-    (save-excursion
-      (loop for (key . value) in unicode-map
-            do
-            (goto-char (point-min))
-            (replace-regexp key value)))))
-
-(defun ysp/beautify-json ()
+(defun beautify-json ()
   "Pretty-print the JSON in the marked region. Currently shells
      out to `jsonpp'--be sure that's installed!"
   (interactive)
   (save-excursion
     (shell-command-on-region (mark) (point) "jsonpp" (buffer-name) t)))
 
-(defun ysp/comment-or-uncomment-region-or-line ()
-  "Comments or uncomments the region or the current line if there's no active region."
-  (interactive)
-  (let (beg end)
-    (if (region-active-p)
-        (setq beg (region-beginning) end (region-end))
-      (setq beg (line-beginning-position) end (line-end-position)))
-    (comment-or-uncomment-region beg end)))
-
-(defun ysp/unfill-paragraph ()
-  "Takes a multi-line paragraph and makes it into a single line of text."
-  (interactive)
-  (let ((fill-column (point-max)))
-    (fill-paragraph nil)))
-
-(defun ysp/kill-current-buffer ()
-  "Kill the current buffer without prompting."
-  (interactive)
-  (kill-buffer (current-buffer)))
-
-(defun ysp/visit-last-dired-file ()
-  "Open the last file in an open dired buffer."
-  (end-of-buffer)
-  (previous-line)
-  (dired-find-file))
-
-(defun ysp/visit-last-migration ()
-  "Open the last file in 'db/migrate/'. Relies on projectile. Pretty sloppy."
-  (interactive)
-  (dired (expand-file-name "db/migrate" (projectile-project-root)))
-  (hrs/visit-last-dired-file)
-  (kill-buffer "migrate"))
 
 (defun mac? ()
   (eq system-type 'darwin))
 
+
+(defun linux? ()
+  (eq system-type 'gnu/linux))
+
+(defun windows? ()
+  (eq system-type 'windows-nt))
+
+
 (defun add-auto-mode (mode &rest patterns)
-  "Add entries to `auto-mode-alist' to use `MODE' for all given file `PATTERNS'."
   (dolist (pattern patterns)
     (add-to-list 'auto-mode-alist (cons pattern mode))))
 
-(defun ysp/find-file-as-sudo ()
+(defun sudo ()
   (interactive)
   (let ((file-name (buffer-file-name)))
     (when file-name
       (find-alternate-file (concat "/sudo::" file-name)))))
 
-(defun ysp/insert-random-string (len)
-  "Insert a random alphanumeric string of length len."
-  (interactive)
-  (let ((mycharset "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstyvwxyz"))
-    (dotimes (i len)
-      (insert (elt mycharset (random (length mycharset)))))))
-
-(defun ysp/generate-password ()
-  "Insert a good alphanumeric password of length 30."
-  (interactive)
-  (hrs/insert-random-string 30))
-
-
-(global-set-key (kbd "C-x 2") 'ysp/split-window-below-and-switch)
-(global-set-key (kbd "C-x 3") 'ysp/split-window-right-and-switch)
-
-;;; save when necessarry 
+;;; save when necessarry
 (defun save-all ()
   (interactive)
   (save-some-buffers t))
@@ -266,11 +171,11 @@ With a prefix ARG always prompt for command to use."
         (system-time-locale "en_US"))
     (insert (format-time-string format))))
 
-(global-set-key (kbd "C-c 1") 'insert-date)
+(global-set-key (kbd "C-c d") 'insert-date)
 
 (defun settings ()
   (interactive)
-  (find-file "~/.emacs.d/init.el"))
+  (find-file "~/Configs/dot.el/init.el"))
 
 (defun rs ()
   (interactive)
@@ -329,7 +234,7 @@ With a prefix ARG always prompt for command to use."
 (setq initial-scratch-message nil)
 (setq initial-buffer-choice "~/")
 
-;;; life is short , but not my dick. 
+;;; life is short , but not my dick.
 (defalias 'yes-or-no-p 'y-or-n-p)
 ;;; no bullshit
 (delete-selection-mode t)
@@ -350,7 +255,7 @@ With a prefix ARG always prompt for command to use."
 (setq org-src-fontify-natively t)
 (set-input-mode t nil t)
 
-;;  we have to move efficiently 
+;;  we have to move efficiently
 (global-subword-mode 1)
 
 ;; stop the crap
@@ -384,10 +289,10 @@ With a prefix ARG always prompt for command to use."
 (require 'paren)
 (setq show-paren-style 'parenthesis)
 (show-paren-mode +1)
-(setq show-paren-style 'parenthesis) 
+(setq show-paren-style 'parenthesis)
 (setq show-paren-delay 0)
 
-;;; you know dvorak 
+;;; you know dvorak
 (keyboard-translate ?\C-x ?\C-u)
 (keyboard-translate ?\C-u ?\C-x)
 
@@ -432,8 +337,8 @@ With a prefix ARG always prompt for command to use."
   :ensure t
   :config (progn
             (global-company-mode t)
-            (global-set-key (kbd "M-TAB") #'company-complete))
-  
+            (global-set-key (kbd "M-tab") #'company-complete))
+
   :init (progn
           (setq company-tooltip-align-annotations t)
           (setq company-idle-delay 0.025)
@@ -454,6 +359,7 @@ With a prefix ARG always prompt for command to use."
   :init (key-chord-mode 1)
   :config (progn (key-chord-define-global "p." 'project-explorer-open)
                  (key-chord-define-global "ht" 'projectile-find-file)
+                 (key-chord-define-global "gc" 'find-file)
                  (key-chord-define-global "ue" 'execute-extended-command)))
 
 (use-package smartparens
@@ -472,7 +378,7 @@ With a prefix ARG always prompt for command to use."
 (use-package rainbow-delimiters
   :ensure t
   :config (progn
-            (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)            
+            (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
             ))
 
 (use-package counsel
@@ -521,12 +427,12 @@ With a prefix ARG always prompt for command to use."
   :ensure t
   :mode (("\\.clj\\'" . clojure-mode)
          ("\\.edn\\'" . clojure-mode))
-  :init (progn 
+  :init (progn
           (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
-          (add-hook 'clojure-mode-hook #'yas-minor-mode)         
-          (add-hook 'clojure-mode-hook #'subword-mode)           
+          (add-hook 'clojure-mode-hook #'yas-minor-mode)
+          (add-hook 'clojure-mode-hook #'subword-mode)
           (add-hook 'clojure-mode-hook #'smartparens-mode)
-          (add-hook 'clojure-mode-hook #'paredit-mode)       
+          (add-hook 'clojure-mode-hook #'paredit-mode)
           (add-hook 'clojure-mode-hook #'eldoc-mode)))
 
 (use-package clj-refactor
@@ -612,7 +518,7 @@ With a prefix ARG always prompt for command to use."
 ;;; better completion for projectile
 (use-package grizzl
   :ensure t
-  :config 
+  :config
   (setq projectile-completion-system 'grizzl))
 
 ;;random text we need sometimes
@@ -710,53 +616,9 @@ With a prefix ARG always prompt for command to use."
 (use-package emmet-mode
   :ensure t
   :config (progn
-            (add-hook 'web-mode-hook 'emmet-mode) 
-            (add-hook 'sgml-mode-hook 'emmet-mode) 
+            (add-hook 'web-mode-hook 'emmet-mode)
+            (add-hook 'sgml-mode-hook 'emmet-mode)
             (add-hook 'css-mode-hook  'emmet-mode)))
-
-(use-package org-bullets
-  :ensure t
-  :init (progn
-          (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-          (add-hook 'org-mode-hook 'my/turn-off-linum-mode)
-          (setq org-log-done t)
-          (setq org-hide-leading-stars t)
-          (setq org-ellipsis "⤵")
-          (setq org-src-fontify-natively t)
-          (setq org-src-tab-acts-natively t)
-          (setq org-src-window-setup 'current-window)
-          (setq org-tag-alist '(("@feature" . ?f)
-                                ("@work" . ?w) ("@home" . ?h) ("laptop" . ?l)))
-          (define-key global-map "\C-cl" 'org-store-link)
-          (define-key global-map "\C-ca" 'org-agenda)
-          (define-key global-map "\C-cc" 'org-capture)
-          (define-key org-mode-map (kbd "C-c <left>") 'org-do-promote)
-          (define-key org-mode-map (kbd "C-c <right>") 'org-do-demote)
-          (define-key org-mode-map (kbd "C-c <C-right>") 'org-demote-subtree)
-          (define-key org-mode-map (kbd "C-c <C-left>") 'org-promte-subtree)
-          (define-key org-mode-map (kbd "C-c <C-left>") 'org-promte-subtree)
-          (define-key org-mode-map (kbd "C-c <up>") 'org-move-subtree-up)
-          (define-key org-mode-map (kbd "C-c <down>") 'org-move-subtree-down)
-          (setq org-default-notes-file "/work/Lispy/org/read.org")
-          (setq org-agenda-files (list "/work/Lispy/org/read.org"
-                                       "/work/Lispy/org/projects/aus.org"
-                                       "/work/Lispy/org/projects/blue.org"
-                                       "/work/Lispy/org/projects/mdc.org"))))
-
-(use-package auctex
-  :ensure t
-  :mode ("\\.tex\\'" . latex-mode)
-  :commands (latex-mode LaTeX-mode plain-tex-mode)
-  :init
-  (progn
-    (add-hook 'LaTeX-mode-hook #'LaTeX-preview-setup)
-    (add-hook 'LaTeX-mode-hook #'flyspell-mode)
-    (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
-    (setq TeX-auto-save t
-      TeX-parse-self t
-	  TeX-save-query nil
-	  TeX-PDF-mode t)
-    (setq-default TeX-master nil)))
 
 (use-package diff-hl
   :ensure t
@@ -795,7 +657,7 @@ With a prefix ARG always prompt for command to use."
             (defengine wiktionary
               "https://www.wikipedia.org/search-redirect.php?family=wiktionary&language=en&go=Go&search=%s"
               :keybinding "W")
-            
+
             (engine-mode t)))
 
 (use-package helm-descbinds
@@ -810,7 +672,7 @@ With a prefix ARG always prompt for command to use."
 
 (use-package calfw
   :ensure t
-  :init 
+  :init
   (progn
     (require 'calfw)))
 
