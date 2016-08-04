@@ -36,9 +36,6 @@
 (setq mac-option-modifier 'super)
 (global-set-key (kbd "<f12>") 'toggle-frame-maximized)
 
-;;; or Emacs fucking freezes every fucking time.
-
-;; which screw up my directory listings.  Make it put them
 ;; somewhere else:
 (setq auto-save-list-file-prefix "~/.emacs-saves/.saves-")
 
@@ -335,10 +332,8 @@
 
 (use-package company
   :ensure t
-  :config (progn
-            (global-company-mode t)
-            (global-set-key (kbd "M-tab") #'company-complete))
-
+  :bind ("s-<SPC>" . company-complete)
+  :config (global-company-mode t)
   :init (progn
           (setq company-tooltip-align-annotations t)
           (setq company-idle-delay 0.025)
@@ -359,7 +354,7 @@
   :init (key-chord-mode 1)
   :config (progn (key-chord-define-global "p." 'project-explorer-open)
                  (key-chord-define-global "ht" 'projectile-find-file)
-                 (key-chord-define-global "gc" 'find-file)
+                 (key-chord-define-global "gc" 'counsel-find-file)
                  (key-chord-define-global "ue" 'execute-extended-command)))
 
 (use-package smartparens
@@ -377,37 +372,32 @@
 
 (use-package rainbow-delimiters
   :ensure t
-  :config (progn
-            (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
-            ))
+  :config (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
 
 (use-package counsel
   :ensure t)
 
-
-
-;;;  swiper,ivy is much better than default and helm
 (use-package swiper
   :ensure t
+  :bind (("\C-s" . swiper)
+         ("C-c C-r" . ivy-resume)
+         ("<f6>" . ivy-resume)
+         ("M-x" . counsel-M-x)
+         ("C-x C-f" . counsel-find-file)
+         ("<f1> f" . counsel-describe-function)
+         ("<f1> v" . counsel-describe-variable)
+         ("<f1> l" . counsel-load-library)
+         ("<f2> i" . counsel-info-lookup-symbol)
+         ("<f2> u" . counsel-unicode-char)
+         ("C-c g" . counsel-git)
+         ("C-c j" . counsel-git-grep)
+         ("C-c k" . counsel-ag)
+         ("C-x l" . counsel-locate)
+         ("C-S-o" . counsel-rhythmbox)
+         )
   :config (progn
             (ivy-mode 1)
             (setq ivy-use-virtual-buffers t)
-            (global-set-key "\C-s" 'swiper)
-            (global-set-key (kbd "C-c C-r") 'ivy-resume)
-            (global-set-key (kbd "<f6>") 'ivy-resume)
-            (global-set-key (kbd "M-x") 'counsel-M-x)
-            (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-            (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-            (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-            (global-set-key (kbd "<f1> l") 'counsel-load-library)
-            (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-            (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-            (global-set-key (kbd "C-c g") 'counsel-git)
-            (global-set-key (kbd "C-c j") 'counsel-git-grep)
-            (global-set-key (kbd "C-c k") 'counsel-ag)
-            (global-set-key (kbd "C-x l") 'counsel-locate)
-            (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
-            (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
             (setq projectile-completion-system 'ivy)))
 
 ;; Key bindings
@@ -448,7 +438,7 @@
   :init
   (progn
     (setq cider-show-error-buffer nil)
-                                        ;    (setq cider-repl-print-length 1000)
+    (setq cider-repl-print-length 1000)
     (add-hook 'cider-repl-mode-hook #'company-mode)
     (add-hook 'cider-mode-hook #'company-mode)
     (add-hook 'cider-mode-hook #'clj-refactor-mode)))
@@ -484,8 +474,8 @@
 ;; Custom blog related stuff
 (use-package magit
   :ensure t
-  :config (progn
-            (global-set-key (kbd "C-x g") 'magit-status)))
+  :bind ("C-x g" . magit-status)
+  )
 
 
 (use-package project-explorer
@@ -495,7 +485,8 @@
 
 (use-package helm
   :ensure t
-  :config   (global-set-key (kbd "C-x C-g") 'helm-imenu))
+  :bind ("C-x C-g" . helm-imenu)
+  )
 
 
 ;;; python
@@ -531,57 +522,24 @@
 
 (use-package markdown-mode
   :ensure t
-  :config
-  (progn
-    (add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
-    (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
-    (add-to-list 'auto-mode-alist '("\\grimoire*\\'" . markdown-mode))
-    (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))))
+  :mode (
+         ("\\.text\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode)
+         ("\\grimoire*\\'" . markdown-mode)
+         ("\\.md\\'" . markdown-mode)))
 
 (use-package expand-region
   :ensure t
-  :config (global-set-key (kbd "C-=") 'er/expand-region))
+  :bind ("C-=" . er/expand-region)
+  )
 
-(use-package hydra   :ensure t)
-
-(use-package ace-window
-  :ensure t
-  :config
-  (progn (global-unset-key (kbd "M-p"))
-
-         (add-hook 'eshell-mode-hook
-                   (lambda ()
-                     (define-key eshell-mode-map (kbd "M-p")
-                       'ace-window)))
-         (add-hook 'cider-repl-mode-hook
-                   (lambda ()
-                     (define-key cider-repl-mode-map (kbd "M-p")
-                       'ace-window)))
-
-         (add-hook 'markdown-mode
-                   (lambda ()
-                     (define-key cider-repl-mode-map (kbd "M-p")
-                       'ace-window)))
-
-         (global-set-key (kbd "M-p") 'ace-window)))
-
-(defun ivy-switch-project ()
-  (interactive)
-  (ivy-read
-   "Switch to project: "
-   (if (projectile-project-p)
-       (cons (abbreviate-file-name (projectile-project-root))
-             (projectile-relevant-known-projects))
-     projectile-known-projects)
-   :action #'projectile-switch-project-by-name))
-
-(global-set-key (kbd "C-c m") 'ivy-switch-project)
+(use-package hydra
+  :ensure t)
 
 (use-package goto-last-change
   :ensure t
-  :config (global-set-key (kbd  "C-x C-\\") 'goto-last-change))
-
-                                        ;(global-visual-line-mode -1)
+  :bind ("C-x C-\\" . goto-last-change)
+  )
 
 ;;; web stuff
 (use-package web-mode
@@ -598,18 +556,19 @@
 
 (use-package yaml-mode
   :ensure t
-  :config
-  (add-to-list 'auto-mode-alist '("\\.yaml?\\'" . yaml-mode)))
+  :mode "\\.yaml?\\'"
+  )
 
 (use-package js2-mode
   :ensure t
+  :mode (("\\.js?\\'" . js2-mode)
+         ("\\.jsx?\\'" . js2-mode))
   :config
   (progn
     (add-hook 'js2-mode-hook 'yas-minor-mode)
     (add-hook 'js2-mode-hook 'js2-refactor-mode)
     (js2r-add-keybindings-with-prefix "C-c C-m")
-    (add-to-list 'auto-mode-alist '("\\.js?\\'" . js2-mode))
-    (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-mode))))
+    ))
 
 
 ;;; the thing shows up makes you happy and cozy.
@@ -619,6 +578,11 @@
             (add-hook 'web-mode-hook 'emmet-mode)
             (add-hook 'sgml-mode-hook 'emmet-mode)
             (add-hook 'css-mode-hook  'emmet-mode)))
+
+(use-package edit-server
+  :init
+  (add-hook 'after-init-hook 'server-start t)
+  (add-hook 'after-init-hook 'edit-server-start t))
 
 (use-package diff-hl
   :ensure t
@@ -657,7 +621,6 @@
             (defengine wiktionary
               "https://www.wikipedia.org/search-redirect.php?family=wiktionary&language=en&go=Go&search=%s"
               :keybinding "W")
-
             (engine-mode t)))
 
 (use-package helm-descbinds
@@ -684,16 +647,15 @@
 
 (use-package scala-mode
   :ensure t
-  :config
-  (progn
-    (add-to-list 'auto-mode-alist '("\\.scala\\'" . scala-mode))))
+  :mode (("\\.scala\\'" . scala-mode))
+  )
 
 (use-package mark-multiple
   :ensure t
-  :config
-  (progn
-    (global-set-key (kbd "C->") 'mc/mark-next-like-this)
-    (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)))
+  :bind (("C->" . mc/mark-next-like-this)
+         ("C-<" . mc/mark-previous-like-this)
+         ("C-'" . mc/mark-all-like-this))
+  )
 
 
 (custom-set-faces
