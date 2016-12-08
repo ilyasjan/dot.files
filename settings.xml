@@ -1,0 +1,59 @@
+<settings>
+  <mirrors>
+
+    <mirror>
+      <id>alimaven</id>
+      <name>aliyun maven</name>
+      <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+      <mirrorOf>central</mirrorOf>
+    </mirror>
+    <mirror>
+      <id>repo2</id>
+      <mirrorOf>central</mirrorOf>
+      <name>Human Readable Name for this Mirror.</name>
+      <url>http://repo2.maven.org/maven2/</url>
+</mirror>
+<mirror>
+      <id>net-cn</id>
+      <mirrorOf>central</mirrorOf>
+      <name>Human Readable Name for this Mirror.</name>
+      <url>http://maven.net.cn/content/groups/public/</url>
+</mirror>
+<mirror>
+      <id>ui</id>
+      <mirrorOf>central</mirrorOf>
+      <name>Human Readable Name for this Mirror.</name>
+      <url>http://uk.maven.org/maven2/</url>
+</mirror>
+<mirror>
+      <id>ibiblio</id>
+      <mirrorOf>central</mirrorOf>
+      <name>Human Readable Name for this Mirror.</name>
+      <url>http://mirrors.ibiblio.org/pub/mirrors/maven2/</url>
+</mirror>
+<mirror>
+      <id>jboss-public-repository-group</id>
+      <mirrorOf>central</mirrorOf>
+      <name>JBoss Public Repository Group</name>
+      <url>http://repository.jboss.org/nexus/content/groups/public</url>
+</mirror>
+<mirror>
+  <id>daocloud-lbp0200</id>
+  <name>daocloud-lbp0200</name>
+  <url>http://lbp0200-maven.daoapp.io/maven2</url>
+  <mirrorOf>central</mirrorOf>
+</mirror>
+<mirror>
+    <id>clojars.org</id>
+    <name>clojars-daocloud</name>
+    <url>http://lbp0200-maven.daoapp.io/repo</url>
+    <mirrorOf>clojars</mirrorOf>
+</mirror>
+<mirror>
+    <id>https://mvnrepository.com/</id>
+    <name>clojars-daocloud</name>
+    <url>https://mvnrepository.com/</url>
+    <mirrorOf>clojars</mirrorOf>
+</mirror>
+  </mirrors>
+</settings>
