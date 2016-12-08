@@ -32,13 +32,16 @@
 
 
 (global-unset-key "\M-c")
+
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier 'super)
+
 (global-set-key (kbd "<f12>") 'toggle-frame-maximized)
 
 ;; somewhere else:
 (setq auto-save-list-file-prefix "~/.emacs-saves/.saves-")
 
+;;;解决eshell中的clear命令问题
 (defun eshell/clear ()
   "Clear terminal"
   (interactive)
@@ -46,6 +49,7 @@
     (erase-buffer)
     (eshell-send-input)))
 
+;;;文件名复制到剪贴板
 (defun copy-file-name-to-clipboard ()
   (interactive)
   (let ((filename (if (equal major-mode 'dired-mode)
@@ -55,20 +59,19 @@
       (kill-new filename)
       (message "copied buffer file name '%s' to the clipboard" filename))))
 
+
 (setq-default indent-tabs-mode nil)
 (setq tabify nil)
 (setq  cursor-in-non-selected-windows nil)
-;;set the background-color of selected region
 
-
-;;I like darkep background
-
+;;;左边显示行数
 (global-linum-mode +1)
 (setq linum-format " %4d ")
 (set-face-attribute 'linum nil :background (face-attribute 'default :background))
 
 (setq warning-minimum-level :emergency)
 
+;;;切换到暂用buffer
 (defun temp-buffer ()
   (interactive)
   (switch-to-buffer "*temp*"))
@@ -78,40 +81,37 @@
   (interactive)
   (untabify (point-min) (point-max)))
 
+
+;;;清除空格等等
 (defun clean-up-whitespace ()
-  "Calls untabify and delete-trailing-whitespace on the current buffer."
   (interactive)
   (detabify-buffer)
   (delete-trailing-whitespace))
 
+
+;;;建立暂用的buffer
 (global-set-key (kbd "C-x t") 'temp-buffer)
 
-;; this whitespace is kinda killing me
+;;;启动提速
 (require 'whitespace)
 (setq whitespace-line-column 80000) ;; limit line length
-;;encoding;
+
+
+;;;蛋疼的编码
 (prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
-;; backwards compatibility as default-buffer-file-coding-system
-;; is deprecated in 23.2.
+
+
 (if (boundp 'buffer-file-coding-system)
     (setq-default buffer-file-coding-system 'utf-8)
   (setq buffer-file-coding-system 'utf-8))
 
-;; Treat clipboard input as UTF-8 string first; compound text next, etc.
 (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
-
-;;annoying whitespace
 (setq whitespace-style (quote (spaces tabs newline space-mark tab-mark newline-mark)))
 (setq whitespace-display-mappings
-      ;; all numbers are Unicode codepoint in decimal. try (insert-char 182 ) to see it
-      '(
-        ;;(space-mark 32 [183] [46]) ; 32 SPACE, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
-        ;;(newline-mark 10 [182 10]) ; 10 LINE FEED
-        (tab-mark 9 [9655 9] [92 9]) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
-        ))
+      '((tab-mark 9 [9655 9] [92 9])))
 
 (setenv "PATH"
         (concat (getenv "PATH") ":/usr/local/bin"))
@@ -122,7 +122,7 @@
   (message (buffer-file-name)))
 
 
-
+;;;需要你安装JsonPP
 (defun beautify-json ()
   "Pretty-print the JSON in the marked region. Currently shells
      out to `jsonpp'--be sure that's installed!"
@@ -146,13 +146,14 @@
   (dolist (pattern patterns)
     (add-to-list 'auto-mode-alist (cons pattern mode))))
 
+;;;有时候你需要编辑超级文件
 (defun sudo ()
   (interactive)
   (let ((file-name (buffer-file-name)))
     (when file-name
       (find-alternate-file (concat "/sudo::" file-name)))))
 
-;;; save when necessarry
+;;; 全部保存
 (defun save-all ()
   (interactive)
   (save-some-buffers t))
@@ -172,15 +173,11 @@
 
 (defun settings ()
   (interactive)
-  (find-file "~/Configs/dot.el/init.el"))
+  (find-file "~/.emacs.d/init.el"))
 
 (defun rs ()
   (interactive)
   (load-file "~/.emacs.d/init.el"))
-
-(defun lein-settings ()
-  (interactive)
-  (find-file "~/.lein/profiles.clj"))
 
 (global-set-key (kbd "C-c I") 'settings)
 
@@ -252,10 +249,8 @@
 (setq org-src-fontify-natively t)
 (set-input-mode t nil t)
 
-;;  we have to move efficiently
 (global-subword-mode 1)
 
-;; stop the crap
 (setq make-backup-files nil) ; stop creating those backup~ files
 (setq auto-save-default nil) ; stop creating those #auto-save# files
 
@@ -309,16 +304,10 @@
   :ensure t)
 
 (defun text-mode-hook-setup ()
-  ;; make `company-backends' local is critcal
-  ;; or else, you will have completion in every major mode, that's very annoying!
   (make-local-variable 'company-backends)
-
-  ;; company-ispell is the plugin to complete words
   (add-to-list 'company-backends 'company-ispell)
-
-  ;; OPTIONAL, if `company-ispell-dictionary' is nil, `ispell-complete-word-dict' is used
-  ;;  but I prefer hard code the dictionary path. That's more portable.
   (setq company-ispell-dictionary (file-truename "~/.emacs.d/english-words.txt")))
+
 
 (defun toggle-company-ispell ()
   (interactive)
@@ -349,13 +338,13 @@
   :ensure t
   :config (projectile-global-mode t))
 
-(use-package key-chord
-  :ensure t
-  :init (key-chord-mode 1)
-  :config (progn (key-chord-define-global "p." 'project-explorer-open)
-                 (key-chord-define-global "ht" 'projectile-find-file)
-                 (key-chord-define-global "gc" 'counsel-find-file)
-                 (key-chord-define-global "ue" 'execute-extended-command)))
+;;;(use-package key-chord
+;;;  :ensure t
+;;;  :init (key-chord-mode 1)
+;;;  :config (progn (key-chord-define-global "p." 'project-explorer-open)
+;;;                 (key-chord-define-global "ht" 'projectile-find-file)
+;;;                 (key-chord-define-global "gc" 'counsel-find-file)
+;;;                 (key-chord-define-global "ue" 'execute-extended-command)))
 
 (use-package smartparens
   :ensure t
@@ -470,8 +459,7 @@
   :commands (smartparens-mode show-smartparens-mode))
 
 
-;; snippets , this is working quite nice now.
-;; Custom blog related stuff
+;;;Emacs中轻松的使用git
 (use-package magit
   :ensure t
   :bind ("C-x g" . magit-status)
@@ -559,6 +547,8 @@
   :mode "\\.yaml?\\'"
   )
 
+
+;;;react,jsx你会需要的
 (use-package js2-mode
   :ensure t
   :mode (("\\.js?\\'" . js2-mode)
@@ -570,8 +560,7 @@
     (js2r-add-keybindings-with-prefix "C-c C-m")
     ))
 
-
-;;; the thing shows up makes you happy and cozy.
+;;;写HTML是你会需要的
 (use-package emmet-mode
   :ensure t
   :config (progn
@@ -579,6 +568,8 @@
             (add-hook 'sgml-mode-hook 'emmet-mode)
             (add-hook 'css-mode-hook  'emmet-mode)))
 
+
+;;;
 (use-package edit-server
   :init
   (add-hook 'after-init-hook 'server-start t)
@@ -594,34 +585,6 @@
 
 (use-package clojure-snippets
   :ensure t)
-
-(use-package engine-mode
-  :ensure t
-  :config (progn
-            (defengine duckduckgo
-              "https://duckduckgo.com/?q=%s"
-              :keybinding "d")
-
-            (defengine github
-              "https://github.com/search?ref=simplesearch&q=%s"
-              :keybinding "G")
-
-            (defengine google
-              "http://www.google.com/search?ie=utf-8&oe=utf-8&q=%s"
-              :keybinding "g")
-
-            (defengine stack-overflow
-              "https://stackoverflow.com/search?q=%s"
-              :keybinding "s")
-
-            (defengine wikipedia
-              "http://www.wikipedia.org/search-redirect.php?language=en&go=Go&search=%s"
-              :keybinding "w")
-
-            (defengine wiktionary
-              "https://www.wikipedia.org/search-redirect.php?family=wiktionary&language=en&go=Go&search=%s"
-              :keybinding "W")
-            (engine-mode t)))
 
 (use-package helm-descbinds
   :ensure t

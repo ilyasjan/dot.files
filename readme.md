@@ -1,7 +1,6 @@
-# Emacs Dot File
+# 我的配置文件
 
-### 是当前我在用的Emacs配置
-
+### init.el是当前我在用的Emacs配置
 ----
 
 
@@ -54,3 +53,13 @@
 * calfw
 * smart-mode-line
 * mark-multiple
+
+### .npmrc是NodeJS国内镜像设置(taobao)
+----
+```
+registry=https://registry.npm.taobao.org
+```
+
+### settings.xml是maven镜像(你知道国内的网络环境坑.....)
+
+### leiningen.x.jar 有时候没办法下载leiningen....(0_0)
