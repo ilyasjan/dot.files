@@ -1,9 +1,7 @@
 (package-initialize)
 (put 'erase-buffer 'disabled nil)
-;;; quick startup
 (setq gc-cons-threshold 100000000)
 
-;;; major repos
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t) ; Org-mode's repository
@@ -43,7 +41,6 @@
 
 ;;;解决eshell中的clear命令问题
 (defun eshell/clear ()
-  "Clear terminal"
   (interactive)
   (let ((inhibit-read-only t))
     (erase-buffer)
@@ -77,7 +74,6 @@
   (switch-to-buffer "*temp*"))
 
 (defun detabify-buffer ()
-  "Calls untabify on the current buffer"
   (interactive)
   (untabify (point-min) (point-max)))
 
@@ -117,15 +113,12 @@
         (concat (getenv "PATH") ":/usr/local/bin"))
 
 (defun view-buffer-name ()
-  "Display the filename of the current buffer."
   (interactive)
   (message (buffer-file-name)))
 
 
 ;;;需要你安装JsonPP
 (defun beautify-json ()
-  "Pretty-print the JSON in the marked region. Currently shells
-     out to `jsonpp'--be sure that's installed!"
   (interactive)
   (save-excursion
     (shell-command-on-region (mark) (point) "jsonpp" (buffer-name) t)))
@@ -159,8 +152,6 @@
   (save-some-buffers t))
 
 (defun insert-date (prefix)
-  "Insert the current date. With prefix-argument, use ISO format. With
-   two prefix arguments, write out the day and month name."
   (interactive "P")
   (let ((format (cond
                  ((not prefix) "%Y-%m-%d" ) ;"%d.%m.%Y"
@@ -181,7 +172,6 @@
 
 (global-set-key (kbd "C-c I") 'settings)
 
-;; line management
 (defun open-line-below ()
   (interactive)
   (end-of-line)
@@ -198,8 +188,6 @@
 (global-set-key (kbd "<C-return>") 'open-line-below)
 (global-set-key (kbd "<C-S-return>") 'open-line-above)
 
-;; jumping made a little bit easier
-;; Move more quickly
 (global-set-key (kbd "C-S-n")
                 (lambda ()
                   (interactive)
@@ -222,23 +210,18 @@
 
 (define-key emacs-lisp-mode-map (kbd "C-c C-c") 'pp-eval-last-sexp)
 
-;;; less crap
 (setq inhibit-startup-message t)
 (setq inhibit-splash-screen t)
 (setq initial-scratch-message nil)
 (setq initial-buffer-choice "~/")
 
-;;; life is short , but not my dick.
 (defalias 'yes-or-no-p 'y-or-n-p)
-;;; no bullshit
 (delete-selection-mode t)
 (global-set-key (kbd "C-x m") 'eshell)
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 
-;; better search and replace
 (global-set-key (kbd "C-c %") 'query-replace-regexp)
 
-;;; smooth scrolling
 (setq scroll-step            1
       scroll-conservatively  10000)
 
@@ -271,10 +254,8 @@
 
 (setq-default cursor-type 'hbar)
 (blink-cursor-mode t)
-;;; set the default shell
 (setq explicit-shell-file-name "/usr/local/bin/bash")
 (set-face-attribute 'fringe nil :background (face-attribute 'default :background)) ;
-
 (set-face-attribute 'vertical-border nil :foreground (face-attribute 'default :background))
 
 
@@ -284,7 +265,6 @@
 (setq show-paren-style 'parenthesis)
 (setq show-paren-delay 0)
 
-;;; you know dvorak
 (keyboard-translate ?\C-x ?\C-u)
 (keyboard-translate ?\C-u ?\C-x)
 
@@ -302,12 +282,6 @@
 
 (use-package undo-tree
   :ensure t)
-
-(defun text-mode-hook-setup ()
-  (make-local-variable 'company-backends)
-  (add-to-list 'company-backends 'company-ispell)
-  (setq company-ispell-dictionary (file-truename "~/.emacs.d/english-words.txt")))
-
 
 (defun toggle-company-ispell ()
   (interactive)
@@ -329,22 +303,13 @@
           (setq company-dabbrev-ignore-case t)
           (setq company-dabbrev-downcase nil)
           (setq company-tooltip-flip-when-above t)
-          (setq company-dabbrev-code-other-buffers 'code)
-          (add-hook 'text-mode-hook 'text-mode-hook-setup)))
+          (setq company-dabbrev-code-other-buffers 'code)))
 
 
 
 (use-package projectile
   :ensure t
   :config (projectile-global-mode t))
-
-;;;(use-package key-chord
-;;;  :ensure t
-;;;  :init (key-chord-mode 1)
-;;;  :config (progn (key-chord-define-global "p." 'project-explorer-open)
-;;;                 (key-chord-define-global "ht" 'projectile-find-file)
-;;;                 (key-chord-define-global "gc" 'counsel-find-file)
-;;;                 (key-chord-define-global "ue" 'execute-extended-command)))
 
 (use-package smartparens
   :ensure t
@@ -389,7 +354,6 @@
             (setq ivy-use-virtual-buffers t)
             (setq projectile-completion-system 'ivy)))
 
-;; Key bindings
 (use-package recentf
   :ensure t
   :init (progn
@@ -494,13 +458,11 @@
                  (add-hook 'python-mode-hook 'jedi:setup)
                  (setq jedi:complete-on-dot t)))
 
-;;; better completion for projectile
 (use-package grizzl
   :ensure t
   :config
   (setq projectile-completion-system 'grizzl))
 
-;;random text we need sometimes
 (use-package lorem-ipsum
   :ensure t
   :config (lorem-ipsum-use-default-bindings))
@@ -529,7 +491,6 @@
   :bind ("C-x C-\\" . goto-last-change)
   )
 
-;;; web stuff
 (use-package web-mode
   :ensure t
   :config (progn
@@ -569,7 +530,6 @@
             (add-hook 'css-mode-hook  'emmet-mode)))
 
 
-;;;
 (use-package edit-server
   :init
   (add-hook 'after-init-hook 'server-start t)
@@ -622,8 +582,4 @@
 
 
 (custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
  )
