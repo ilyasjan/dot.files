@@ -54,19 +54,19 @@
 - mark-multiple
 
 ###.npmrc是NodeJS国内镜像设置(taobao)###
-#### filepath ####
+#### 文件目录 ####
 ```
 ~/.npmrc
 ```
 
 ### settings.xml是maven镜像(你知道国内的网络环境坑.....) ###
-####filepath####
+#### 文件目录 ####
 ```
 ~/.m2/settings.xml
 ```
 
 ###pip.conf是我的python-pip国内境像配制
-#### filepath ####
+#### 文件目录 ####
 ```
 ~/.pip/pip.conf
 ```
