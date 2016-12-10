@@ -1,4 +1,4 @@
-我的配置文件
+一些配置文件(国内镜像)
 ===
 
 ### init.el是当前我在用的Emacs配置###
@@ -59,17 +59,16 @@
 ~/.npmrc
 ```
 
-### settings.xml是maven镜像(你知道国内的网络环境坑.....) ###
+### settings.xml是maven国内镜像(你知道国内的网络环境坑.....) ###
 #### 文件目录 ####
 ```
 ~/.m2/settings.xml
 ```
 
-###pip.conf是我的python-pip国内境像配制
+###pip.conf是我的python-pip国内镜像配制
 #### 文件目录 ####
 ```
 ~/.pip/pip.conf
 ```
 
 ### leiningen.x.jar 有时候没办法下载leiningen....(0_0) ###
-
